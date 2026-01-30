@@ -1,65 +1,114 @@
+:root {
+  --bg-dark: #0d1111;
+  --bg-mid: #1a2222;
+  --line: #2f3a3a;
+  --text: #cfd6d6;
+  --muted: #7f8f8f;
+}
+
 body {
   margin: 0;
-  background: black;
-  color: white;
+  background: radial-gradient(circle at top, #2b3333, var(--bg-dark));
+  color: var(--text);
   font-family: monospace;
   text-align: center;
 }
 
-.hidden {
+/* общие экраны */
+.screen {
   display: none;
+  min-height: 100vh;
 }
 
-#lock {
-  margin-top: 20vh;
+.screen.active {
+  display: block;
 }
 
-input {
-  padding: 8px;
-  font-size: 18px;
+/* пароль */
+#screen-lock {
+  padding-top: 22vh;
 }
 
-button {
-  padding: 8px 16px;
-  margin-left: 8px;
-  cursor: pointer;
+h1 {
+  letter-spacing: 4px;
+  font-weight: normal;
 }
 
 .hint {
-  opacity: 0.7;
+  opacity: 0.5;
+  font-size: 14px;
+}
+
+input, button {
+  background: var(--bg-dark);
+  color: var(--text);
+  border: 1px solid var(--line);
+  font-size: 16px;
+  padding: 8px 12px;
 }
 
 #error {
-  color: red;
+  color: #b06a6a;
+  margin-top: 8px;
 }
 
-#boom {
-  position: fixed;
-  inset: 0;
-  background: white;
-  animation: flash 0.3s ease-out;
+/* вспышка */
+#screen-flash {
+  background: #e6f0f0;
 }
 
-@keyframes flash {
-  from { background: white; }
-  to { background: black; }
+#screen-flash img {
+  margin-top: 12vh;
+  max-width: 65%;
+  filter: contrast(0.9) brightness(0.9);
+  animation: drift 6s ease-in-out infinite alternate;
 }
 
-#boomImage {
-  max-width: 60%;
-  margin-top: 10vh;
-  animation: shake 0.5s infinite;
+@keyframes drift {
+  from { transform: translateY(0); }
+  to { transform: translateY(12px); }
 }
 
-@keyframes shake {
-  0% { transform: translate(0,0); }
-  25% { transform: translate(3px,-3px); }
-  50% { transform: translate(-3px,3px); }
-  75% { transform: translate(3px,3px); }
-  100% { transform: translate(0,0); }
+/* play */
+#screen-play {
+  padding-top: 35vh;
+}
+
+#playBtn {
+  background: transparent;
+  border: 1px solid var(--muted);
+  font-size: 22px;
+  padding: 14px 36px;
+}
+
+/* игра */
+.game-text {
+  font-size: 13px;
+  letter-spacing: 2px;
+  opacity: 0.6;
 }
 
 #gameCanvas {
-  border: 2px solid white;
-  background: black;
+  background: linear-gradient(var(--bg-mid), var(--bg-dark));
+  border: 1px solid var(--line);
+}
+
+/* тач-кнопки */
+#controls {
+  margin-top: 10px;
+}
+
+#controls button {
+  width: 56px;
+  height: 56px;
+  margin: 4px;
+  background: var(--bg-dark);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  font-size: 20px;
+  touch-action: none;
+}
+
+#controls button:active {
+  background: var(--bg-mid);
 }
