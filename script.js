@@ -1,4 +1,4 @@
-/* ------------------ ЭКРАНЫ ------------------ */
+/* ---------- ЭКРАНЫ ---------- */
 const screens = {
   lock: document.getElementById("screen-lock"),
   flash: document.getElementById("screen-flash"),
@@ -7,11 +7,14 @@ const screens = {
 };
 
 function showScreen(name) {
-  Object.values(screens).forEach(s => s.classList.remove("active"));
-  screens[name].classList.add("active");
+  Object.values(screens).forEach(s => s.style.display = "none");
+  screens[name].style.display = "block";
 }
 
-/* ------------------ ПАРОЛЬ ------------------ */
+/* стартовый экран */
+showScreen("lock");
+
+/* ---------- ПАРОЛЬ ---------- */
 document.getElementById("enterBtn").onclick = () => {
   const val = document.getElementById("password").value;
   if (val === "3101") {
@@ -22,23 +25,17 @@ document.getElementById("enterBtn").onclick = () => {
   }
 };
 
-/* ------------------ PLAY ------------------ */
+/* ---------- PLAY + МГНОВЕННАЯ МУЗЫКА ---------- */
 const music = document.getElementById("music");
 
 document.getElementById("playBtn").onclick = () => {
   showScreen("game");
   music.volume = 0.7;
-  
-  // Безопасный запуск музыки
-  music.play().catch(() => {
-    // на случай, если браузер блокирует звук, попробуем через таймаут
-    setTimeout(() => music.play(), 100);
-  });
-
+  music.play();  // мгновенный старт музыки
   startGame();
 };
 
-/* ------------------ УПРАВЛЕНИЕ ------------------ */
+/* ---------- УПРАВЛЕНИЕ ---------- */
 const keys = {};
 
 document.addEventListener("keydown", e => keys[e.key] = true);
@@ -64,20 +61,20 @@ document.querySelectorAll("#controls button").forEach(btn => {
   });
 });
 
-/* ------------------ ИГРА ------------------ */
+/* ---------- ИГРА ---------- */
 function startGame() {
   const canvas = document.getElementById("gameCanvas");
   const ctx = canvas.getContext("2d");
 
-  let player = { x: 150, y: 110, r: 5 };
-  let drops = [];
+  let player = { x: 160, y: 120, r: 5 };
+  let rain = [];
   let alive = true;
 
-  function spawnDrop() {
-    drops.push({
+  function spawnRain() {
+    rain.push({
       x: Math.random() * canvas.width,
       y: -10,
-      v: 1.5 + Math.random() * 1.5
+      v: 1.5 + Math.random()
     });
   }
 
@@ -92,28 +89,28 @@ function startGame() {
     player.x = Math.max(player.r, Math.min(canvas.width - player.r, player.x));
     player.y = Math.max(player.r, Math.min(canvas.height - player.r, player.y));
 
-    drops.forEach(d => d.y += d.v);
+    rain.forEach(r => r.y += r.v);
   }
 
   function draw() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    /* slugcat-seed */
+    // игрок
     ctx.fillStyle = "#e6f0f0";
     ctx.beginPath();
     ctx.arc(player.x, player.y, player.r, 0, Math.PI * 2);
     ctx.fill();
 
-    /* rain */
+    // дождь
     ctx.fillStyle = "#6f8f8f";
-    drops.forEach(d => {
-      ctx.fillRect(d.x, d.y, 2, 10);
+    rain.forEach(r => {
+      ctx.fillRect(r.x, r.y, 2, 10);
 
       if (
-        d.x > player.x - player.r &&
-        d.x < player.x + player.r &&
-        d.y > player.y - player.r &&
-        d.y < player.y + player.r
+        r.x > player.x - player.r &&
+        r.x < player.x + player.r &&
+        r.y > player.y - player.r &&
+        r.y < player.y + player.r
       ) {
         alive = false;
         ctx.fillStyle = "#cfd6d6";
@@ -129,6 +126,6 @@ function startGame() {
     requestAnimationFrame(loop);
   }
 
-  setInterval(spawnDrop, 700);
+  setInterval(spawnRain, 700);
   loop();
 }
