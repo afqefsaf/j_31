@@ -14,24 +14,25 @@ body {
   text-align: center;
 }
 
-/* общие экраны */
 .screen {
   display: none;
   min-height: 100vh;
-}
-
-.screen.active {
-  display: block;
-}
-
-/* пароль */
-#screen-lock {
   padding-top: 22vh;
 }
 
-h1 {
-  letter-spacing: 4px;
-  font-weight: normal;
+#screen-flash {
+  background: #e6f0f0;
+  padding-top: 12vh;
+}
+
+#screen-flash img {
+  max-width: 65%;
+  animation: drift 6s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  from { transform: translateY(0); }
+  to { transform: translateY(12px); }
 }
 
 .hint {
@@ -49,43 +50,20 @@ input, button {
 
 #error {
   color: #b06a6a;
-  margin-top: 8px;
-}
-
-/* вспышка */
-#screen-flash {
-  background: #e6f0f0;
-}
-
-#screen-flash img {
-  margin-top: 12vh;
-  max-width: 65%;
-  filter: contrast(0.9) brightness(0.9);
-  animation: drift 6s ease-in-out infinite alternate;
-}
-
-@keyframes drift {
-  from { transform: translateY(0); }
-  to { transform: translateY(12px); }
-}
-
-/* play */
-#screen-play {
-  padding-top: 35vh;
 }
 
 #playBtn {
-  background: transparent;
-  border: 1px solid var(--muted);
   font-size: 22px;
   padding: 14px 36px;
+  border: 1px solid var(--muted);
+  background: transparent;
 }
 
-/* игра */
 .game-text {
   font-size: 13px;
   letter-spacing: 2px;
   opacity: 0.6;
+  margin-top: -10vh;
 }
 
 #gameCanvas {
@@ -93,7 +71,6 @@ input, button {
   border: 1px solid var(--line);
 }
 
-/* тач-кнопки */
 #controls {
   margin-top: 10px;
 }
@@ -107,8 +84,4 @@ input, button {
   border: 1px solid var(--line);
   font-size: 20px;
   touch-action: none;
-}
-
-#controls button:active {
-  background: var(--bg-mid);
 }
