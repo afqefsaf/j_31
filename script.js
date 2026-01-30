@@ -1,117 +1,128 @@
-/* ---------- ПАРОЛЬ ---------- */
-function checkPassword() {
-  const pass = document.getElementById("password").value;
-  if (pass === "3101") {
-    startExplosion();
+/* ------------------ ЭКРАНЫ ------------------ */
+const screens = {
+  lock: document.getElementById("screen-lock"),
+  flash: document.getElementById("screen-flash"),
+  play: document.getElementById("screen-play"),
+  game: document.getElementById("screen-game")
+};
+
+function showScreen(name) {
+  Object.values(screens).forEach(s => s.classList.remove("active"));
+  screens[name].classList.add("active");
+}
+
+/* ------------------ ПАРОЛЬ ------------------ */
+document.getElementById("enterBtn").onclick = () => {
+  const val = document.getElementById("password").value;
+  if (val === "3101") {
+    showScreen("flash");
+    setTimeout(() => showScreen("play"), 2500);
   } else {
-    document.getElementById("error").innerText = "Неверно.";
+    document.getElementById("error").innerText = "ACCESS DENIED";
   }
-}
+};
 
-/* ---------- ВЗРЫВ ---------- */
-function startExplosion() {
-  document.getElementById("lock").style.display = "none";
-  const boom = document.getElementById("boom");
-  boom.classList.remove("hidden");
+/* ------------------ PLAY ------------------ */
+const music = document.getElementById("music");
 
-  const music = document.getElementById("music");
-  music.volume = 0.8;
+document.getElementById("playBtn").onclick = () => {
+  showScreen("game");
+  music.volume = 0.7;
   music.play();
+  startGame();
+};
 
-  startParticles();
+/* ------------------ УПРАВЛЕНИЕ ------------------ */
+const keys = {};
 
-  setTimeout(() => {
-    boom.classList.add("hidden");
-    document.getElementById("game").classList.remove("hidden");
-    startGame();
-  }, 3000);
-}
+document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keyup", e => keys[e.key] = false);
 
-/* ---------- ЧАСТИЦЫ ---------- */
-function startParticles() {
-  const canvas = document.getElementById("particles");
-  const ctx = canvas.getContext("2d");
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+document.querySelectorAll("#controls button").forEach(btn => {
+  const dir = btn.dataset.dir;
+  const map = {
+    up: ["ArrowUp","w"],
+    down: ["ArrowDown","s"],
+    left: ["ArrowLeft","a"],
+    right: ["ArrowRight","d"]
+  };
 
-  let particles = [];
-  for (let i = 0; i < 200; i++) {
-    particles.push({
-      x: canvas.width / 2,
-      y: canvas.height / 2,
-      vx: (Math.random() - 0.5) * 10,
-      vy: (Math.random() - 0.5) * 10,
-      life: 100
-    });
-  }
+  btn.addEventListener("touchstart", e => {
+    e.preventDefault();
+    map[dir].forEach(k => keys[k] = true);
+  });
 
-  function animate() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life--;
-      ctx.fillStyle = "white";
-      ctx.fillRect(p.x, p.y, 2, 2);
-    });
-    particles = particles.filter(p => p.life > 0);
-    if (particles.length > 0) requestAnimationFrame(animate);
-  }
-  animate();
-}
+  btn.addEventListener("touchend", e => {
+    e.preventDefault();
+    map[dir].forEach(k => keys[k] = false);
+  });
+});
 
-/* ---------- МИНИ-ИГРА (UNDERTALE-STYLE) ---------- */
+/* ------------------ ИГРА ------------------ */
 function startGame() {
   const canvas = document.getElementById("gameCanvas");
   const ctx = canvas.getContext("2d");
 
-  let player = { x: 200, y: 150, size: 8 };
-  let bullets = [];
+  let player = { x: 150, y: 110, r: 5 };
+  let drops = [];
+  let alive = true;
 
-  document.addEventListener("keydown", e => {
-    if (e.key === "ArrowLeft") player.x -= 10;
-    if (e.key === "ArrowRight") player.x += 10;
-    if (e.key === "ArrowUp") player.y -= 10;
-    if (e.key === "ArrowDown") player.y += 10;
-  });
-
-  function spawnBullet() {
-    bullets.push({
+  function spawnDrop() {
+    drops.push({
       x: Math.random() * canvas.width,
-      y: 0,
-      vy: 2 + Math.random() * 2
+      y: -10,
+      v: 1.5 + Math.random() * 1.5
+    });
+  }
+
+  function update() {
+    if (!alive) return;
+
+    if (keys["ArrowLeft"] || keys["a"]) player.x -= 3;
+    if (keys["ArrowRight"] || keys["d"]) player.x += 3;
+    if (keys["ArrowUp"] || keys["w"]) player.y -= 3;
+    if (keys["ArrowDown"] || keys["s"]) player.y += 3;
+
+    player.x = Math.max(player.r, Math.min(canvas.width - player.r, player.x));
+    player.y = Math.max(player.r, Math.min(canvas.height - player.r, player.y));
+
+    drops.forEach(d => d.y += d.v);
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    /* slugcat-seed */
+    ctx.fillStyle = "#e6f0f0";
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.r, 0, Math.PI * 2);
+    ctx.fill();
+
+    /* rain */
+    ctx.fillStyle = "#6f8f8f";
+    drops.forEach(d => {
+      ctx.fillRect(d.x, d.y, 2, 10);
+
+      if (
+        d.x > player.x - player.r &&
+        d.x < player.x + player.r &&
+        d.y > player.y - player.r &&
+        d.y < player.y + player.r
+      ) {
+        alive = false;
+        ctx.fillStyle = "#cfd6d6";
+        ctx.font = "14px monospace";
+        ctx.fillText("THE RAIN TOOK YOU", 70, 120);
+      }
     });
   }
 
   function loop() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    // player (душа)
-    ctx.fillStyle = "red";
-    ctx.fillRect(player.x, player.y, player.size, player.size);
-
-    bullets.forEach(b => {
-      b.y += b.vy;
-      ctx.fillStyle = "white";
-      ctx.fillRect(b.x, b.y, 4, 8);
-
-      if (
-        b.x < player.x + player.size &&
-        b.x + 4 > player.x &&
-        b.y < player.y + player.size &&
-        b.y + 8 > player.y
-      ) {
-        ctx.fillStyle = "white";
-        ctx.font = "20px monospace";
-        ctx.fillText("GAME OVER", 140, 150);
-        return;
-      }
-    });
-
-    bullets = bullets.filter(b => b.y < canvas.height);
+    update();
+    draw();
     requestAnimationFrame(loop);
   }
 
-  setInterval(spawnBullet, 700);
+  setInterval(spawnDrop, 700);
   loop();
 }
