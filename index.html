@@ -2,30 +2,44 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>31.01</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <!-- ЭКРАН ПАРОЛЯ -->
-<div id="lock">
-  <h1>Введите пароль</h1>
-  <p class="hint">Подсказка: сегодняшний день</p>
-  <input type="password" id="password" placeholder="****">
-  <button onclick="checkPassword()">OK</button>
+<div id="screen-lock" class="screen active">
+  <h1>ACCESS</h1>
+  <p class="hint">подсказка: сегодняшний день</p>
+  <input id="password" type="password" inputmode="numeric">
+  <button id="enterBtn">ENTER</button>
   <p id="error"></p>
 </div>
 
-<!-- ВЗРЫВ + КАРТИНКА -->
-<div id="boom" class="hidden">
-  <img src="image.jpg" id="boomImage">
-  <canvas id="particles"></canvas>
+<!-- ВСПЫШКА -->
+<div id="screen-flash" class="screen">
+  <img src="image.jpg" alt="">
 </div>
 
-<!-- МИНИ-ИГРА -->
-<div id="game" class="hidden">
-  <p class="game-text">Избегай сердец 💔 (Undertale-style)</p>
-  <canvas id="gameCanvas" width="400" height="300"></canvas>
+<!-- PLAY -->
+<div id="screen-play" class="screen">
+  <button id="playBtn">▶ PLAY</button>
+</div>
+
+<!-- ИГРА -->
+<div id="screen-game" class="screen">
+  <p class="game-text">SURVIVE THE RAIN</p>
+  <canvas id="gameCanvas" width="320" height="240"></canvas>
+
+  <div id="controls">
+    <button data-dir="up">▲</button>
+    <div>
+      <button data-dir="left">◀</button>
+      <button data-dir="down">▼</button>
+      <button data-dir="right">▶</button>
+    </div>
+  </div>
 </div>
 
 <audio id="music" src="was_wollen_wir_trinken.mp3" loop></audio>
