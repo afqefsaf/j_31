@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>31.01</title>
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  background: black;
+  color: white;
+  font-family: monospace;
+  overflow: hidden;
+}
+
+/* --- ЗАСТАВКА --- */
+#lock {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle, #111, #000);
+}
+
+#lock input {
+  font-size: 24px;
+  padding: 10px;
+  background: black;
+  color: white;
+  border: 2px solid white;
+  text-align: center;
+}
+
+#hint {
+  opacity: 0.6;
+  margin-top: 10px;
+}
+
+/* --- ВЗРЫВ --- */
+#flash {
+  position: fixed;
+  inset: 0;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- ОСНОВНОЙ ЭКРАН --- */
+#main {
+  display: none;
+  position: fixed;
+  inset: 0;
+}
+
+/* КАРТИНКА */
+#image {
+  position: absolute;
+  inset: 0;
+  background: center/contain no-repeat;
+  animation: pulse 2s infinite;
+}
+
+/* UNDERTALE-BOX */
+#game {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 200px;
+  border: 4px solid white;
+}
+
+#soul {
+  width: 14px;
+  height: 14px;
+  background: red;
+  position: absolute;
+  left: 193px;
+  top: 93px;
+}
+
+.bullet {
+  width: 10px;
+  height: 10px;
+  background: white;
+  position: absolute;
+}
+
+@keyframes pulse {
+  0%,100% { filter: brightness(1); }
+  50% { filter: brightness(1.4); }
+}
+</style>
+</head>
+<body>
+
+<!-- ЗАСТАВКА -->
+<div id="lock">
+  <input id="pass" placeholder="****" maxlength="4">
+  <div id="hint">подсказка: сегодняшний день</div>
+</div>
+
+<div id="flash"></div>
+
+<!-- ОСНОВНОЙ КОНТЕНТ -->
+<div id="main">
+  <div id="image"></div>
+  <div id="game">
+    <div id="soul"></div>
+  </div>
+</div>
+
+<script>
+/* ================== ВСТАВЬ СВОИ ДАННЫЕ ================== */
+
+/* image.jpg -> base64 */
+const IMAGE_BASE64 = "data:image/jpeg;base64,ВСТАВЬ_СЮДА_BASE64";
+
+/* was_wollen_wir_trinken.mp3 -> base64 */
+const MUSIC_BASE64 = "data:audio/mp3;base64,ВСТАВЬ_СЮДА_BASE64";
+
+/* ====================================================== */
+
+const lock = document.getElementById("lock");
+const pass = document.getElementById("pass");
+const flash = document.getElementById("flash");
+const main = document.getElementById("main");
+const image = document.getElementById("image");
+
+/* --- ПАРОЛЬ --- */
+pass.addEventListener("keydown", e => {
+  if (e.key === "Enter" && pass.value === "3101") {
+    unlock();
+  }
+});
+
+function unlock() {
+  lock.style.display = "none";
+  flash.style.opacity = 1;
+
+  image.style.backgroundImage = `url(${IMAGE_BASE64})`;
+
+  setTimeout(() => flash.style.opacity = 0, 200);
+  main.style.display = "block";
+
+  const music = new Audio(MUSIC_BASE64);
+  music.loop = true;
+  music.play();
+
+  startGame();
+}
+
+/* --- MINI-ИГРА UNDERTALE --- */
+const game = document.getElementById("game");
+const soul = document.getElementById("soul");
+
+let keys = {};
+document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keyup", e => keys[e.key] = false);
+
+function moveSoul() {
+  let x = soul.offsetLeft;
+  let y = soul.offsetTop;
+  const speed = 3;
+
+  if (keys["ArrowLeft"]) x -= speed;
+  if (keys["ArrowRight"]) x += speed;
+  if (keys["ArrowUp"]) y -= speed;
+  if (keys["ArrowDown"]) y += speed;
+
+  x = Math.max(0, Math.min(386, x));
+  y = Math.max(0, Math.min(186, y));
+
+  soul.style.left = x + "px";
+  soul.style.top = y + "px";
+}
+
+function spawnBullet() {
+  const b = document.createElement("div");
+  b.className = "bullet";
+  b.style.left = Math.random() * 390 + "px";
+  b.style.top = "0px";
+  game.appendChild(b);
+
+  let vy = 2 + Math.random() * 2;
+
+  function move() {
+    let y = b.offsetTop + vy;
+    b.style.top = y + "px";
+
+    if (collision(b, soul)) {
+      soul.style.background = "white";
+      setTimeout(() => soul.style.background = "red", 100);
+    }
+
+    if (y < 200) requestAnimationFrame(move);
+    else b.remove();
+  }
+  move();
+}
+
+function collision(a, b) {
+  return !(
+    a.offsetLeft > b.offsetLeft + 14 ||
+    a.offsetLeft + 10 < b.offsetLeft ||
+    a.offsetTop > b.offsetTop + 14 ||
+    a.offsetTop + 10 < b.offsetTop
+  );
+}
+
+function startGame() {
+  setInterval(moveSoul, 16);
+  setInterval(spawnBullet, 600);
+}
+</script>
+</body>
+</html>
