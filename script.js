@@ -25,13 +25,34 @@ document.getElementById("enterBtn").onclick = () => {
   }
 };
 
-/* ---------- PLAY + МГНОВЕННАЯ МУЗЫКА ---------- */
-const music = document.getElementById("music");
+/* ---------- Web Audio API ---------- */
+let audioCtx;
+let track;
 
-document.getElementById("playBtn").onclick = () => {
+async function startMusic() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    const response = await fetch("was_wollen_wir_trinken.mp3");
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+    track = audioCtx.createBufferSource();
+    track.buffer = audioBuffer;
+    track.loop = true;
+
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0.7; // громкость
+    track.connect(gainNode).connect(audioCtx.destination);
+
+    track.start(0);
+  }
+}
+
+/* ---------- PLAY ---------- */
+document.getElementById("playBtn").onclick = async () => {
   showScreen("game");
-  music.volume = 0.7;
-  music.play();  // мгновенный старт музыки
+  await startMusic(); // мгновенный старт музыки через Web Audio API
   startGame();
 };
 
