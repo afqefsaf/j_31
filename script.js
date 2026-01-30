@@ -28,7 +28,13 @@ const music = document.getElementById("music");
 document.getElementById("playBtn").onclick = () => {
   showScreen("game");
   music.volume = 0.7;
-  music.play();
+  
+  // Безопасный запуск музыки
+  music.play().catch(() => {
+    // на случай, если браузер блокирует звук, попробуем через таймаут
+    setTimeout(() => music.play(), 100);
+  });
+
   startGame();
 };
 
