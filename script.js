@@ -2,7 +2,6 @@
 const screens = {
   lock: document.getElementById("screen-lock"),
   flash: document.getElementById("screen-flash"),
-  play: document.getElementById("screen-play"),
   game: document.getElementById("screen-game")
 };
 
@@ -19,7 +18,12 @@ document.getElementById("enterBtn").onclick = () => {
   const val = document.getElementById("password").value;
   if (val === "3101") {
     showScreen("flash");
-    setTimeout(() => showScreen("play"), 2500);
+    // после вспышки — переход на экран игры, ждем тап
+    setTimeout(() => {
+      // добавляем обработчик тап/клик на весь экран
+      document.addEventListener("click", startTapGame, { once: true });
+      document.addEventListener("touchstart", startTapGame, { once: true });
+    }, 1500);
   } else {
     document.getElementById("error").innerText = "ACCESS DENIED";
   }
@@ -42,19 +46,19 @@ async function startMusic() {
     track.loop = true;
 
     const gainNode = audioCtx.createGain();
-    gainNode.gain.value = 0.7; // громкость
+    gainNode.gain.value = 0.7; 
     track.connect(gainNode).connect(audioCtx.destination);
 
     track.start(0);
   }
 }
 
-/* ---------- PLAY ---------- */
-document.getElementById("playBtn").onclick = async () => {
+/* ---------- СТАРТ ИГРЫ НА ТАП ---------- */
+function startTapGame() {
   showScreen("game");
-  await startMusic(); // мгновенный старт музыки через Web Audio API
+  startMusic();   // мгновенный старт музыки
   startGame();
-};
+}
 
 /* ---------- УПРАВЛЕНИЕ ---------- */
 const keys = {};
